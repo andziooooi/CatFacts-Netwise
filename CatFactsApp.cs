@@ -5,10 +5,12 @@ namespace CatFacts_Netwise
     public class CatFactsApp : ICatFactsApp
     {
         private readonly ICatFactsService _catFactsService;
+        private readonly IFileService _fileService;
 
-        public CatFactsApp(ICatFactsService catFactsService)
+        public CatFactsApp(ICatFactsService catFactsService, IFileService fileService)
         {
             _catFactsService = catFactsService;
+            _fileService = fileService;
         }
 
         public async Task RunApp()
@@ -38,7 +40,7 @@ namespace CatFacts_Netwise
         {
             try
             {
-                Console.WriteLine("Fetching cat fact...");
+                Console.WriteLine("Fetching cat fact...\n");
 
                 //Get CatFact from service
                 var catFact = await _catFactsService.GetRandomCatFactAsync();
@@ -46,7 +48,12 @@ namespace CatFacts_Netwise
                 if (catFact != null)
                 {
                     Console.WriteLine($"Cat Fact: {catFact.Fact}");
-                    Console.WriteLine($"Length: {catFact.Length} characters");
+                    Console.WriteLine($"Length: {catFact.Length} characters\n");
+
+                    string formatedFact = $"{catFact.Fact} [Length: {catFact.Length}]";
+                    //Append fact to file 
+                    await _fileService.AppendToFileAsync(formatedFact);
+                    Console.WriteLine("Cat fact saved to file");
                 }
                 else
                 {

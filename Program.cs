@@ -1,6 +1,7 @@
 ﻿using CatFacts_Netwise.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace CatFacts_Netwise
 {
@@ -14,7 +15,11 @@ namespace CatFacts_Netwise
             await app.RunApp();
         }
         static IHostBuilder CreateHostBuilder(string[] arg) =>
-            Host.CreateDefaultBuilder(arg).ConfigureServices((contex, services) =>
+            Host.CreateDefaultBuilder(arg).ConfigureLogging(logging =>
+            {
+                //Add filter to console for clarity
+                logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
+            }).ConfigureServices((contex, services) =>
             {
                 services.AddHttpClient<ICatFactsService, CatFactsService>(client =>
                 {
@@ -25,6 +30,7 @@ namespace CatFacts_Netwise
                     client.Timeout = TimeSpan.FromSeconds(30);
                 });
                 services.AddTransient<ICatFactsApp, CatFactsApp>();
+                services.AddSingleton<IFileService,FileService>();
             });
     }
 }
